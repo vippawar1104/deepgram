@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deepgram Voice Agent</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <div class="topbar">
+          <div>
+            <h1>Deepgram Voice-to-Voice Agent</h1>
+            <p id="status">Disconnected</p>
+            <p id="meta">Press Start to open a new voice session</p>
+          </div>
+          <button id="toggle" type="button">Start</button>
+        </div>
+
+        <div class="meter" aria-hidden="true">
+          <span id="meterBar"></span>
+        </div>
+
+
+        <section class="transcript" id="transcript" aria-live="polite"></section>
+      </section>
+    </main>
+    <script src="/assets/app.js" type="module"></script>
+  </body>
+</html>

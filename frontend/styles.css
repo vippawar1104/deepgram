@@ -1,0 +1,290 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+:root {
+  --bg-color: #0d0f13;
+  --panel-bg: rgba(22, 25, 33, 0.65);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent-color: #3b82f6;
+  --accent-hover: #60a5fa;
+  --danger-color: #ef4444;
+  --danger-hover: #f87171;
+  --user-msg-bg: rgba(59, 130, 246, 0.15);
+  --user-msg-border: rgba(59, 130, 246, 0.3);
+  --agent-msg-bg: rgba(255, 255, 255, 0.05);
+  --agent-msg-border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg-color);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+  color: var(--text-main);
+  overflow-x: hidden;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  transition: all 0.3s ease;
+}
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.panel {
+  width: min(920px, 100%);
+  min-height: min(720px, calc(100vh - 48px));
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 24px;
+  padding: 32px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+
+#status {
+  margin: 12px 0 0;
+  color: var(--accent-hover);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+#meta {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+#toggle {
+  min-width: 140px;
+  height: 52px;
+  padding: 0 24px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-color), #2563eb);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}
+
+#toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent-color));
+}
+
+#toggle[data-active="true"] {
+  background: linear-gradient(135deg, var(--danger-color), #dc2626);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+}
+
+#toggle[data-active="true"]:hover {
+  background: linear-gradient(135deg, var(--danger-hover), var(--danger-color));
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+}
+
+.meter {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.meter span {
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  transition: width 100ms ease-out;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+  border-radius: 999px;
+}
+
+.transcript {
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.transcript::-webkit-scrollbar {
+  width: 6px;
+}
+
+.transcript::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+}
+
+.message {
+  width: fit-content;
+  max-width: min(680px, 90%);
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--agent-msg-border);
+  background: var(--agent-msg-bg);
+  line-height: 1.5;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message.agent {
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.message.user {
+  align-self: flex-end;
+  background: var(--user-msg-bg);
+  border-color: var(--user-msg-border);
+  border-bottom-right-radius: 4px;
+}
+
+.role {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.message.user .role {
+  color: var(--accent-hover);
+}
+
+@media (max-width: 640px) {
+  .shell { padding: 12px; }
+  .panel {
+    min-height: calc(100vh - 24px);
+    padding: 20px;
+    border-radius: 16px;
+  }
+  .topbar {
+    align-items: stretch;
+    flex-direction: column;
+    text-align: center;
+  }
+  #toggle { width: 100%; }
+}
+
+.text-form {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 4px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  width: min(500px, 100%);
+  margin: 0 auto;
+}
+
+.text-form:focus-within {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#textInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 16px;
+  outline: none;
+}
+
+#textInput::placeholder {
+  color: var(--text-muted);
+}
+
+#textInput:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#textSubmit {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-color), #2563eb);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+  padding: 0;
+  margin: 2px;
+}
+
+#textSubmit svg {
+  width: 14px;
+  height: 14px;
+}
+
+#textSubmit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent-color));
+}
+
+#textSubmit:disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.2);
+  box-shadow: none;
+  cursor: not-allowed;
+}
