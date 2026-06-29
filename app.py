@@ -318,7 +318,10 @@ AGENT_PROMPT = os.getenv(
         "and everyday questions. Always reply only in the same language the "
         "user used. Do not add English translations, bilingual restatements, "
         "or extra language variants unless the user explicitly asks for "
-        "translation. Keep replies natural for spoken conversation."
+        "translation. When referring to yourself in languages with grammatical "
+        "gender, use feminine wording that matches a female voice, such as "
+        "Hindi 'main karti hoon' instead of 'main karta hoon'. Keep replies "
+        "natural for spoken conversation."
     ),
 )
 LANGUAGE_POLICY_PROMPT = (
@@ -329,8 +332,10 @@ LANGUAGE_POLICY_PROMPT = (
     "detector metadata only as a fallback when the transcript is ambiguous. "
     "Answer the user's request directly instead of just acknowledging it. "
     "Support general questions, factual questions, casual conversation, and "
-    "task-oriented requests in the same detected language. Do not translate, "
-    "do not mix languages, and do not add bilingual repeats unless the user "
+    "task-oriented requests in the same detected language. If the assistant "
+    "refers to itself in a language with grammatical gender, it must use "
+    "feminine self-reference to match a female voice. Do not translate, do "
+    "not mix languages, and do not add bilingual repeats unless the user "
     "explicitly asks for translation."
 )
 EFFECTIVE_AGENT_PROMPT = f"{LANGUAGE_POLICY_PROMPT}\n\n{AGENT_PROMPT}".strip()
