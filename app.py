@@ -158,6 +158,38 @@ _LANGUAGE_ALIASES: dict[str, str] = {
 }
 
 _INDIAN_VOICE_FALLBACK_LANGUAGE = "hi"
+_DEVANAGARI_LANGUAGE_CODES = {"hi", "mr"}
+_BENGALI_ASSAMESE_LANGUAGE_CODES = {"bn", "as"}
+_COMMON_ENGLISH_TOKENS = {
+    "a",
+    "an",
+    "and",
+    "are",
+    "can",
+    "do",
+    "good",
+    "hello",
+    "hey",
+    "hi",
+    "how",
+    "i",
+    "is",
+    "me",
+    "morning",
+    "my",
+    "name",
+    "please",
+    "thanks",
+    "thank",
+    "the",
+    "there",
+    "what",
+    "who",
+    "why",
+    "yes",
+    "you",
+    "your",
+}
 
 
 def _base_language_code(language: str) -> str:
@@ -224,6 +256,59 @@ def _resolved_elevenlabs_tts_language(agent_language: str) -> str:
     return _elevenlabs_language_code(agent_language)
 
 
+def _contains_codepoint(text: str, start: int, end: int) -> bool:
+    return any(start <= ord(char) <= end for char in text)
+
+
+def _resolve_turn_language(content: str, detected_language: str, fallback_language: str = "en") -> str:
+    """Resolve turn language from transcript content first, then detector metadata."""
+    detected_base = _base_language_code(detected_language)
+    text = (content or "").strip()
+    if not text:
+        return detected_base or _base_language_code(fallback_language) or "en"
+
+    if _contains_codepoint(text, 0x0C80, 0x0CFF):
+        return "kn"
+    if _contains_codepoint(text, 0x0B80, 0x0BFF):
+        return "ta"
+    if _contains_codepoint(text, 0x0C00, 0x0C7F):
+        return "te"
+    if _contains_codepoint(text, 0x0D00, 0x0D7F):
+        return "ml"
+    if _contains_codepoint(text, 0x0A00, 0x0A7F):
+        return "pa"
+    if _contains_codepoint(text, 0x0B00, 0x0B7F):
+        return "or"
+    if _contains_codepoint(text, 0x0600, 0x06FF):
+        return "ur" if detected_base == "ur" else detected_base or "ur"
+    if _contains_codepoint(text, 0x0980, 0x09FF):
+        if detected_base in _BENGALI_ASSAMESE_LANGUAGE_CODES:
+            return detected_base
+        return "bn"
+    if _contains_codepoint(text, 0x0900, 0x097F):
+        if detected_base in _DEVANAGARI_LANGUAGE_CODES:
+            return detected_base
+        return "hi"
+
+    latin_letters = [char for char in text if char.isalpha() and char.isascii()]
+    non_latin_letters = [char for char in text if char.isalpha() and not char.isascii()]
+    if latin_letters and not non_latin_letters:
+        tokens = {
+            token.strip(".,!?;:'\"()[]{}").lower()
+            for token in text.split()
+            if token.strip(".,!?;:'\"()[]{}")
+        }
+        english_hits = len(tokens & _COMMON_ENGLISH_TOKENS)
+        if detected_base == "en" or english_hits > 0:
+            return "en"
+        if detected_base and detected_base not in _INDIAN_LANGUAGE_CODES:
+            return detected_base
+        if len(tokens) >= 3:
+            return "en"
+
+    return detected_base or _base_language_code(fallback_language) or "en"
+
+
 AGENT_GREETING = os.getenv("DEEPGRAM_AGENT_GREETING")
 AGENT_PROMPT = os.getenv(
     "DEEPGRAM_AGENT_PROMPT",
@@ -235,6 +320,16 @@ AGENT_PROMPT = os.getenv(
         "for spoken conversation."
     ),
 )
+LANGUAGE_POLICY_PROMPT = (
+    "Language policy: reply in the exact same language as the user's latest "
+    "message. If the user speaks English, reply in English. Never default to "
+    "Hindi or any other language just because the speaker has an Indian accent. "
+    "Use the transcript content itself as the primary language signal, and use "
+    "detector metadata only as a fallback when the transcript is ambiguous. "
+    "Do not translate, do not mix languages, and do not add bilingual repeats "
+    "unless the user explicitly asks for translation."
+)
+EFFECTIVE_AGENT_PROMPT = f"{LANGUAGE_POLICY_PROMPT}\n\n{AGENT_PROMPT}".strip()
 
 app = FastAPI(title="Deepgram FastAPI Voice Agent")
 
@@ -509,7 +604,12 @@ async def run_proxy(
                     continue
 
                 detected_lang = payload.get("language") or ""
-                base_lang = _base_language_code(detected_lang)
+                content = payload.get("content") or ""
+                base_lang = _resolve_turn_language(
+                    content,
+                    detected_lang,
+                    state.current_lang or AGENT_LANGUAGE or "en",
+                )
                 if not base_lang or base_lang == state.current_lang:
                     continue
 
@@ -635,7 +735,7 @@ def default_settings() -> dict[str, Any]:
         "listen": {"provider": listen_provider},
         "think": {
             "provider": think_provider,
-            "prompt": AGENT_PROMPT,
+            "prompt": EFFECTIVE_AGENT_PROMPT,
         },
         "speak": speak,
     }
