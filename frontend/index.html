@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deepgram Voice Console</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Voice Pipeline</p>
+          <h1>Deepgram to ElevenLabs session console</h1>
+        </div>
+        <div class="hero-actions">
+          <button id="toggle" type="button" class="primary-action">Start</button>
+        </div>
+      </header>
+
+      <section class="status-band">
+        <div class="status-block">
+          <span class="label">Connection</span>
+          <strong id="status">Disconnected</strong>
+          <p id="meta">Press Start to open a new voice session</p>
+        </div>
+        <div class="status-block">
+          <span class="label">Pipeline</span>
+          <div class="stage-row">
+            <span class="stage-pill" id="captureStage">Capture</span>
+            <span class="stage-pill" id="listenStage">Listen</span>
+            <span class="stage-pill" id="thinkStage">Think</span>
+            <span class="stage-pill" id="speakStage">Speak</span>
+          </div>
+        </div>
+        <div class="status-block">
+          <span class="label">Input level</span>
+          <div class="meter" aria-hidden="true">
+            <span id="meterBar"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="metrics-band">
+        <div class="metric">
+          <span class="label">First audio</span>
+          <strong id="firstAudioMetric">--</strong>
+        </div>
+        <div class="metric">
+          <span class="label">Think</span>
+          <strong id="thinkMetric">--</strong>
+        </div>
+        <div class="metric">
+          <span class="label">Speak</span>
+          <strong id="speakMetric">--</strong>
+        </div>
+        <div class="metric">
+          <span class="label">Packet size</span>
+          <strong id="packetMetric">40 ms</strong>
+        </div>
+        <div class="metric">
+          <span class="label">Playback queue</span>
+          <strong id="queueMetric">0 ms</strong>
+        </div>
+        <div class="metric">
+          <span class="label">TTS</span>
+          <strong id="ttsMetric">--</strong>
+        </div>
+      </section>
+
+      <section class="transcript-section">
+        <div class="transcript-header">
+          <h2>Transcript</h2>
+          <span id="sessionMetric" class="session-metric">Idle</span>
+        </div>
+        <section class="transcript" id="transcript" aria-live="polite"></section>
+        <form id="composer" class="composer" autocomplete="off">
+          <label class="composer-label" for="textPrompt">Type a message</label>
+          <div class="composer-row">
+            <input
+              id="textPrompt"
+              class="composer-input"
+              type="text"
+              name="textPrompt"
+              placeholder="Type a command or message for the voice agent"
+              maxlength="1000"
+            />
+            <button id="sendText" type="submit" class="secondary-action" disabled>Send</button>
+          </div>
+        </form>
+      </section>
+    </main>
+    <script src="/assets/app.js" type="module"></script>
+  </body>
+</html>

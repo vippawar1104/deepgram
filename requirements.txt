@@ -1,0 +1,7 @@
+aiohttp
+deepgram-sdk
+fastapi
+python-dotenv
+requests
+uvicorn[standard]
+websockets>=15,<17
